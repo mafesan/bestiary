@@ -4,6 +4,7 @@ from time import time
 
 from django import forms
 
+
 from projects.models import DataSource, Project, RepositoryView
 
 from . import data
@@ -73,12 +74,12 @@ class EcosystemsForm(BestiaryEditorForm):
     def __init__(self, *args, **kwargs):
         super(EcosystemsForm, self).__init__(*args, **kwargs)
 
-        choices = ()
+        choices = [('', '')]  # Initial empty choice
 
         for eco in data.EcosystemsData(self.state).fetch():
             choices += ((eco.name, eco.name),)
 
-        self.fields['name'] = forms.ChoiceField(label='Ecosystems',
+        self.fields['name'] = forms.ChoiceField(label='Ecosystems', required=True,
                                                 widget=self.widget, choices=choices)
 
 
@@ -211,12 +212,12 @@ class RepositoryViewForm(BestiaryEditorForm):
             for ds in DataSource.objects.all():
                 choices += ((ds.name, ds.name),)
 
-        choices = sorted(choices, key=lambda x: x[1])
+        empty_choice = [('', '')]
+        choices = empty_choice + sorted(choices, key=lambda x: x[1])
 
         self.widget = forms.Select(attrs={'class': 'form-control'})
-        self.fields['data_source'] = forms.CharField(label='Data Source',
-                                                     max_length=100, required=False)
-        self.fields['data_source'].widget = forms.HiddenInput(attrs={'class': 'form-control', 'readonly': 'True'})
+        self.fields['data_source'] = forms.ChoiceField(label='Data Source', required=True,
+                                                       widget=self.widget, choices=choices)
 
         self.fields['project'] = forms.CharField(label='project', max_length=100, required=False)
         self.fields['project'].widget = forms.HiddenInput(attrs={'class': 'form-control', 'readonly': 'True'})
